@@ -6,11 +6,14 @@ const App = () =>{
         ['','',''],
         ['','','']
 ])
+    const [win, setWin] = useState(false)
     const [turn,setTurn] = useState('X')
-    const handleItem = (cords)=>{
+    const handleItem = async(cords)=>{
+        if(win){
+            return null
+        }
         let first = cords[0]
         let second = cords[1]
-        let current = board[first][second]
         if(turn === 'X' && !board[first][second]){
             board[first][second] = 'X'
             setTurn('O')
@@ -19,8 +22,12 @@ const App = () =>{
             board[first][second] = 'O'
             setTurn('X')
         }
-
         setBoard([...board])
+        let response = await calcWinner(board)
+        console.log(response)
+       if(response){
+           setWin(response)
+       }
     }
     return (
         <div style = {{marginTop: 200}}>
@@ -40,8 +47,13 @@ const App = () =>{
                 <p onClick = {()=>handleItem([2,1])}style = {middleItem}>{board[2][1]}</p>
                 <p onClick = {()=>handleItem([2,2])}style = {item}>{board[2][2]}</p>
             </div>
-
-            <button onClick = {()=>setBoard([['','',''],['','',''],['','','']])}>reset</button>
+            <button onClick = {()=>{
+                setBoard([['','',''],['','',''],['','','']])
+                setTurn('X')
+                setWin(false)
+            }
+        }>reset</button>
+        {win ? <p>{`${win} wins`}</p>:<p></p>}
         </div>
         
     )
@@ -82,6 +94,40 @@ const middleItem = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center'
+}
+const calcWinner = (board)=>{
+    const winningLines = [
+        [[0,0],[0,1],[0,2]],
+        [[1,0],[1,1],[1,2]],
+        [[2,0],[2,1],[2,2]],
+        [[0,0],[1,0],[2,0]],
+        [[0,1],[1,1],[2,1]],
+        [[0,2],[1,2],[2,2]],
+        [[0,0],[1,1],[2,2]],
+        [[0,2],[1,1],[2,0]],
+    ]
+    let winner = null;
+    for(let i = 0; i < winningLines.length;i++){
+        let values = [];
+        for(let j = 0; j< 3; j++){
+            let cords = winningLines[i][j]
+            let first = cords[0]
+            let second = cords[1]
+            let letter = board[first][second]
+            
+            values.push(letter)
+            if(j>0){
+                if(values[j] !== values[j-1]){
+                    break;
+                }
+            }
+            if(j ===2 && values[0]!== ''){
+                winner = values[0]
+            }
+            
+        } 
+    }
+    return winner
 }
 
 export default App
