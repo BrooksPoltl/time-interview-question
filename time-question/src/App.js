@@ -23,5 +23,6 @@ const App = () =>{
 }
 const divStyle = {
     display: 'flex',
+    flexDirection: 'row'
 }
 export default App
